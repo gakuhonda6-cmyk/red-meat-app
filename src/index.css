@@ -1,0 +1,29 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --glass-bg: rgba(255, 255, 255, 0.05);
+    --glass-border: rgba(255, 255, 255, 0.1);
+  }
+
+  body {
+    @apply bg-slate-950 text-slate-100 min-h-screen antialiased;
+    background-image: radial-gradient(circle at top right, rgba(225, 29, 72, 0.15), transparent 40%),
+                      radial-gradient(circle at bottom left, rgba(159, 18, 57, 0.15), transparent 40%);
+    background-attachment: fixed;
+  }
+}
+
+.glass-panel {
+  @apply bg-white/5 backdrop-blur-lg border border-white/10 rounded-2xl shadow-xl;
+}
+
+/* Custom Scrollbar for numeric input hiding */
+input[type=number]::-webkit-inner-spin-button, 
+input[type=number]::-webkit-outer-spin-button { 
+  -webkit-appearance: none; 
+  margin: 0; 
+}
+input[type=number] {
+  -moz-appearance: textfield;
+}
