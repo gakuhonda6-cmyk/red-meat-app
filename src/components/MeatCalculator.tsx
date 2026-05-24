@@ -146,7 +146,7 @@ export default function MeatCalculator() {
           {/* COMBINED MODE */}
           {!data.isSalt && subMode === 'combined' && data.combined && (
             <>
-              {mode === 'weight' && (
+              {mode === 'weight' ? (
                 <div className="glass-panel p-4 text-center border-emerald-900/30 bg-emerald-950/20">
                   <div className="text-emerald-400 text-sm font-semibold mb-1 flex items-center justify-center gap-2"><Calculator size={16}/>ソーセージ作成分</div>
                   <div className="text-2xl font-bold text-white">{data.combined.barrels} <span className="text-base text-emerald-200/70 font-medium">タル分</span></div>
@@ -154,7 +154,12 @@ export default function MeatCalculator() {
                     <div className="text-xs text-emerald-300 mt-2 bg-emerald-900/40 py-1 px-3 rounded-full inline-block">余り肉: {data.combined.leftover.toFixed(1)}kg</div>
                   )}
                 </div>
-              )}
+              ) : mode === 'barrels' ? (
+                <div className="glass-panel p-4 text-center border-emerald-900/30 bg-emerald-950/20">
+                  <div className="text-emerald-400 text-sm font-semibold mb-1 flex items-center justify-center gap-2"><Beef size={16}/>必要な赤肉（くず肉）の総量</div>
+                  <div className="text-2xl font-bold text-white">{(data.val * 3.3).toFixed(1)} <span className="text-base text-emerald-200/70 font-medium">kg</span></div>
+                </div>
+              ) : null}
 
               <MeatOnlyCard meatOnly={data.combined.meat} />
               <TomatoIceCard tomatoIce={data.combined.tomato} />
