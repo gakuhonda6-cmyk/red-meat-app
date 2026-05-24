@@ -1,4 +1,5 @@
 import MeatCalculator from './components/MeatCalculator';
+import ChatAssistant from './components/ChatAssistant';
 
 function App() {
   return (
@@ -19,6 +20,9 @@ function App() {
           &copy; {new Date().getFullYear()} Factory App
         </footer>
       </div>
+
+      {/* Floating Chat Assistant */}
+      <ChatAssistant />
     </div>
   );
 }
