@@ -158,6 +158,14 @@ export default function MeatCalculator() {
                 <div className="glass-panel p-4 text-center border-emerald-900/30 bg-emerald-950/20">
                   <div className="text-emerald-400 text-sm font-semibold mb-1 flex items-center justify-center gap-2"><Beef size={16}/>必要な赤肉（くず肉）の総量</div>
                   <div className="text-2xl font-bold text-white">{(data.val * 3.3).toFixed(1)} <span className="text-base text-emerald-200/70 font-medium">kg</span></div>
+                  <div className="flex justify-center gap-3 mt-3 text-xs md:text-sm">
+                    <div className="bg-rose-900/40 py-1 px-3 rounded-full text-rose-200 border border-rose-800/50">
+                      肉のみ用: <span className="font-bold">{(data.val * 1.5).toFixed(1)}</span>kg
+                    </div>
+                    <div className="bg-sky-900/40 py-1 px-3 rounded-full text-sky-200 border border-sky-800/50">
+                      トマト氷用: <span className="font-bold">{(data.val * 1.8).toFixed(1)}</span>kg
+                    </div>
+                  </div>
                 </div>
               ) : null}
 
