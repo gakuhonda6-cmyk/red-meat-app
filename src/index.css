@@ -1,21 +1,24 @@
 @import "tailwindcss";
 
-@layer base {
-  :root {
-    --glass-bg: rgba(255, 255, 255, 0.05);
-    --glass-border: rgba(255, 255, 255, 0.1);
-  }
+@custom-variant dark (&:is(.dark *));
 
+@layer base {
   body {
-    @apply bg-slate-950 text-slate-100 min-h-screen antialiased;
+    @apply bg-slate-50 text-slate-900 min-h-screen antialiased transition-colors duration-300;
+    background-image: radial-gradient(circle at top right, rgba(225, 29, 72, 0.05), transparent 40%),
+                      radial-gradient(circle at bottom left, rgba(159, 18, 57, 0.05), transparent 40%);
+    background-attachment: fixed;
+  }
+  
+  html.dark body {
+    @apply bg-slate-950 text-slate-100;
     background-image: radial-gradient(circle at top right, rgba(225, 29, 72, 0.15), transparent 40%),
                       radial-gradient(circle at bottom left, rgba(159, 18, 57, 0.15), transparent 40%);
-    background-attachment: fixed;
   }
 }
 
 .glass-panel {
-  @apply bg-white/5 backdrop-blur-lg border border-white/10 rounded-2xl shadow-xl;
+  @apply bg-white/70 dark:bg-white/5 backdrop-blur-lg border border-slate-200 dark:border-white/10 rounded-2xl shadow-xl;
 }
 
 /* Custom Scrollbar for numeric input hiding */

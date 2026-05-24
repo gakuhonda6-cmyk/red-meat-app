@@ -31,7 +31,6 @@ export default function ChatAssistant() {
     setIsLoading(true);
 
     try {
-      // Vercel Serverless Function に送信（最初の挨拶は省略してもOKですが、今回は全て送ります）
       const response = await fetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -61,15 +60,15 @@ export default function ChatAssistant() {
         <MessageCircle size={28} />
       </button>
 
-      <div className={`fixed bottom-0 md:bottom-6 md:right-6 w-full md:w-[400px] h-[80vh] md:h-[600px] bg-slate-900 border-t md:border border-white/10 md:rounded-2xl shadow-2xl flex flex-col z-50 transition-all transform duration-300 ${isOpen ? 'translate-y-0 opacity-100' : 'translate-y-full opacity-0 pointer-events-none'}`}>
-        <div className="flex items-center justify-between p-4 bg-slate-800 border-b border-white/10 md:rounded-t-2xl">
+      <div className={`fixed bottom-0 md:bottom-6 md:right-6 w-full md:w-[400px] h-[80vh] md:h-[600px] bg-white dark:bg-slate-900 border-t md:border border-slate-200 dark:border-white/10 md:rounded-2xl shadow-2xl flex flex-col z-50 transition-all transform duration-300 ${isOpen ? 'translate-y-0 opacity-100' : 'translate-y-full opacity-0 pointer-events-none'}`}>
+        <div className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-800 border-b border-slate-200 dark:border-white/10 md:rounded-t-2xl">
           <div className="flex items-center gap-2">
             <div className="bg-rose-500 p-2 rounded-lg text-white">
               <Bot size={20} />
             </div>
-            <h3 className="font-bold text-white">計算AIアシスタント</h3>
+            <h3 className="font-bold text-slate-900 dark:text-white">計算AIアシスタント</h3>
           </div>
-          <button onClick={() => setIsOpen(false)} className="text-slate-400 hover:text-white p-2 transition-colors">
+          <button onClick={() => setIsOpen(false)} className="text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white p-2 transition-colors">
             <X size={24} />
           </button>
         </div>
@@ -80,7 +79,7 @@ export default function ChatAssistant() {
               <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 shadow-sm ${msg.role === 'user' ? 'bg-sky-600' : 'bg-rose-600'}`}>
                 {msg.role === 'user' ? <User size={16} className="text-white"/> : <Bot size={16} className="text-white"/>}
               </div>
-              <div className={`px-4 py-3 rounded-2xl max-w-[80%] whitespace-pre-wrap text-sm leading-relaxed ${msg.role === 'user' ? 'bg-sky-600/20 text-sky-100 border border-sky-500/30' : 'bg-slate-800 text-slate-200 border border-white/5'}`}>
+              <div className={`px-4 py-3 rounded-2xl max-w-[80%] whitespace-pre-wrap text-sm leading-relaxed ${msg.role === 'user' ? 'bg-sky-100 dark:bg-sky-600/20 text-sky-900 dark:text-sky-100 border border-sky-200 dark:border-sky-500/30' : 'bg-slate-50 dark:bg-slate-800 text-slate-800 dark:text-slate-200 border border-slate-200 dark:border-white/5'}`}>
                 {msg.parts[0].text}
               </div>
             </div>
@@ -90,17 +89,17 @@ export default function ChatAssistant() {
               <div className="w-8 h-8 rounded-full bg-rose-600 flex items-center justify-center shrink-0">
                 <Bot size={16} className="text-white"/>
               </div>
-              <div className="px-4 py-3 rounded-2xl bg-slate-800 border border-white/5 flex gap-1 items-center">
-                <div className="w-2 h-2 bg-slate-500 rounded-full animate-bounce"></div>
-                <div className="w-2 h-2 bg-slate-500 rounded-full animate-bounce" style={{animationDelay: '0.2s'}}></div>
-                <div className="w-2 h-2 bg-slate-500 rounded-full animate-bounce" style={{animationDelay: '0.4s'}}></div>
+              <div className="px-4 py-3 rounded-2xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-white/5 flex gap-1 items-center">
+                <div className="w-2 h-2 bg-slate-400 dark:bg-slate-500 rounded-full animate-bounce"></div>
+                <div className="w-2 h-2 bg-slate-400 dark:bg-slate-500 rounded-full animate-bounce" style={{animationDelay: '0.2s'}}></div>
+                <div className="w-2 h-2 bg-slate-400 dark:bg-slate-500 rounded-full animate-bounce" style={{animationDelay: '0.4s'}}></div>
               </div>
             </div>
           )}
           <div ref={messagesEndRef} />
         </div>
 
-        <div className="p-4 bg-slate-800 border-t border-white/10 md:rounded-b-2xl">
+        <div className="p-4 bg-slate-50 dark:bg-slate-800 border-t border-slate-200 dark:border-white/10 md:rounded-b-2xl">
           <div className="flex gap-2">
             <input
               type="text"
@@ -108,7 +107,7 @@ export default function ChatAssistant() {
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && handleSend()}
               placeholder="質問を入力してください..."
-              className="flex-1 bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-rose-500/50"
+              className="flex-1 bg-white dark:bg-black/50 border border-slate-300 dark:border-white/10 rounded-xl px-4 py-3 text-sm text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-rose-500/50"
             />
             <button
               onClick={handleSend}
