@@ -8,7 +8,7 @@ function App() {
           <h1 className="text-3xl font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-rose-400 to-red-500">
             Red Meat Calc
           </h1>
-          <p className="text-sm text-slate-400">水曜日の赤肉仕込みをスマートに</p>
+          <p className="text-sm text-slate-400">赤肉仕込みをスマートに</p>
         </header>
 
         <main>
