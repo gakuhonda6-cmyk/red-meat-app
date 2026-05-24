@@ -4,7 +4,7 @@ import ChatAssistant from './components/ChatAssistant';
 import { Plus, X } from 'lucide-react';
 
 function App() {
-  const [tabs, setTabs] = useState([{ id: 1, name: '朝の部' }]);
+  const [tabs, setTabs] = useState([{ id: 1, name: '計算 1' }]);
   const [activeTabId, setActiveTabId] = useState(1);
   const [nextId, setNextId] = useState(2);
 
