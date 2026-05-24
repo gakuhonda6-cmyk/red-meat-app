@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import MeatCalculator from './components/MeatCalculator';
 import ChatAssistant from './components/ChatAssistant';
+import ManualModal from './components/ManualModal';
 import { Plus, X } from 'lucide-react';
 
 function App() {
@@ -28,7 +29,10 @@ function App() {
   return (
     <div className="min-h-screen w-full flex flex-col items-center py-8 px-4 font-sans pb-24">
       <div className="w-full max-w-md mx-auto space-y-6">
-        <header className="text-center space-y-2 mb-6">
+        <header className="text-center space-y-3 mb-6 relative">
+          <div className="absolute right-0 top-0">
+            <ManualModal />
+          </div>
           <h1 className="text-3xl font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-rose-400 to-red-500">
             Red Meat Calc
           </h1>
