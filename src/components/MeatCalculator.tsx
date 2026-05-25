@@ -30,6 +30,10 @@ export default function MeatCalculator() {
   const [subMode, setSubMode] = useState<'combined' | 'meat' | 'tomato'>('combined');
   const [inputValue, setInputValue] = useState<string>('');
 
+  const [parisawBarrels, setParisawBarrels] = useState<number>(0);
+  const [bistroBarrels, setBistroBarrels] = useState<number>(0);
+  const [salamiBarrels, setSalamiBarrels] = useState<number>(0);
+
   const data = useMemo(() => {
     const val = parseFloat(inputValue);
     if (isNaN(val) || val <= 0) return null;
@@ -39,11 +43,39 @@ export default function MeatCalculator() {
     }
 
     const isWeight = mode === 'weight';
+    const isBarrels = mode === 'barrels';
 
-    const combinedBarrels = isWeight ? Math.floor(val / 3.3) : Math.floor(val);
-    const combinedMeat = calculateMeatOnly(combinedBarrels * 1.5);
-    const combinedTomato = calculateTomatoIce(combinedBarrels);
-    const combinedLeftover = isWeight ? (val - combinedBarrels * 3.3) : 0;
+    let combinedBarrels = 0;
+    let combinedMeat = null;
+    let combinedTomato = null;
+    let combinedLeftover = 0;
+
+    let actualMeatOnlyKg = 0;
+    let actualTomatoMeatKg = 0;
+
+    if (isWeight) {
+      combinedBarrels = Math.floor(val / 3.3);
+      actualMeatOnlyKg = combinedBarrels * 1.5;
+      actualTomatoMeatKg = combinedBarrels * 1.8;
+      
+      combinedMeat = calculateMeatOnly(actualMeatOnlyKg);
+      combinedTomato = calculateTomatoIce(combinedBarrels);
+      combinedLeftover = val - combinedBarrels * 3.3;
+    } else {
+      const totalBarrels = val;
+      const standardBarrels = Math.max(0, totalBarrels - bistroBarrels - salamiBarrels - parisawBarrels);
+      
+      const totalMeatKg = (standardBarrels * 1.5) + (bistroBarrels * 2.0) + (salamiBarrels * 1.5) + (parisawBarrels * 3.0);
+      const totalTomatoBarrels = (standardBarrels * 1.0) + (bistroBarrels * 1.0) + (salamiBarrels * 0.5) + (parisawBarrels * (4/3));
+
+      actualMeatOnlyKg = totalMeatKg;
+      actualTomatoMeatKg = totalTomatoBarrels * 1.8;
+
+      combinedBarrels = totalBarrels;
+      combinedMeat = calculateMeatOnly(totalMeatKg);
+      combinedTomato = calculateTomatoIce(totalTomatoBarrels);
+      combinedLeftover = 0;
+    }
 
     const exclusiveMeat = isWeight ? calculateMeatOnly(val) : null;
 
@@ -60,16 +92,28 @@ export default function MeatCalculator() {
       isSalt: false,
       val,
       isWeight,
+      isBarrels,
+      standardBarrels: isBarrels ? Math.max(0, val - bistroBarrels - salamiBarrels - parisawBarrels) : 0,
+      bistroBarrels,
+      salamiBarrels,
+      parisawBarrels,
+      actualMeatOnlyKg,
+      actualTomatoMeatKg,
       combined: { barrels: combinedBarrels, meat: combinedMeat, tomato: combinedTomato, leftover: combinedLeftover },
       exclusiveMeat,
       exclusiveTomato: exclusiveTomato ? { barrels: exclusiveTomatoBarrels, tomato: exclusiveTomato, leftover: exclusiveTomatoLeftover } : null,
     };
-  }, [inputValue, mode]);
+  }, [inputValue, mode, bistroBarrels, salamiBarrels, parisawBarrels]);
 
   const handleModeSwitch = (newMode: 'salt' | 'weight' | 'barrels') => {
     setMode(newMode);
     setInputValue('');
     if (newMode !== 'weight') setSubMode('combined');
+    if (newMode !== 'barrels') {
+      setParisawBarrels(0);
+      setBistroBarrels(0);
+      setSalamiBarrels(0);
+    }
   };
 
   return (
@@ -117,6 +161,32 @@ export default function MeatCalculator() {
             {mode === 'salt' ? 'g' : mode === 'weight' ? 'kg' : 'タル'}
           </div>
         </div>
+        
+        {mode === 'barrels' && parseFloat(inputValue) > 0 && (
+          <div className="bg-slate-50 dark:bg-black/30 p-4 rounded-xl border border-slate-200 dark:border-white/5 space-y-4 animate-in fade-in slide-in-from-top-2">
+            <div className="text-sm font-bold text-slate-700 dark:text-slate-300 flex items-center justify-between">
+              <span>イレギュラーなソーセージ</span>
+              <span className="text-xs font-normal text-slate-500">
+                通常: <span className="font-bold text-slate-800 dark:text-white">{Math.max(0, parseFloat(inputValue) - bistroBarrels - salamiBarrels - parisawBarrels)}</span> タル
+              </span>
+            </div>
+            
+            <div className="grid grid-cols-3 gap-3">
+              <div className="space-y-1">
+                <label className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 block text-center">パリソー</label>
+                <input type="number" min="0" value={parisawBarrels || ''} onChange={e => setParisawBarrels(parseInt(e.target.value) || 0)} className="w-full bg-white dark:bg-white/5 border border-slate-300 dark:border-white/10 rounded-lg px-2 py-1.5 text-center text-sm text-slate-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-rose-500/50" placeholder="0" />
+              </div>
+              <div className="space-y-1">
+                <label className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 block text-center">ビストロ</label>
+                <input type="number" min="0" value={bistroBarrels || ''} onChange={e => setBistroBarrels(parseInt(e.target.value) || 0)} className="w-full bg-white dark:bg-white/5 border border-slate-300 dark:border-white/10 rounded-lg px-2 py-1.5 text-center text-sm text-slate-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-rose-500/50" placeholder="0" />
+              </div>
+              <div className="space-y-1">
+                <label className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 block text-center">玄米/サラミ</label>
+                <input type="number" min="0" value={salamiBarrels || ''} onChange={e => setSalamiBarrels(parseInt(e.target.value) || 0)} className="w-full bg-white dark:bg-white/5 border border-slate-300 dark:border-white/10 rounded-lg px-2 py-1.5 text-center text-sm text-slate-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-rose-500/50" placeholder="0" />
+              </div>
+            </div>
+          </div>
+        )}
       </div>
 
       {data && !data.isSalt && mode === 'weight' && (
@@ -149,13 +219,13 @@ export default function MeatCalculator() {
               ) : mode === 'barrels' ? (
                 <div className="glass-panel p-4 text-center border-emerald-300 dark:border-emerald-900/30 bg-emerald-50 dark:bg-emerald-950/20">
                   <div className="text-emerald-600 dark:text-emerald-400 text-sm font-semibold mb-1 flex items-center justify-center gap-2"><Beef size={16}/>必要な赤肉（くず肉）の総量</div>
-                  <div className="text-2xl font-bold text-slate-900 dark:text-white">{(data.val * 3.3).toFixed(1)} <span className="text-base text-emerald-600 dark:text-emerald-200/70 font-medium">kg</span></div>
+                  <div className="text-2xl font-bold text-slate-900 dark:text-white">{(data.actualMeatOnlyKg + data.actualTomatoMeatKg).toFixed(1)} <span className="text-base text-emerald-600 dark:text-emerald-200/70 font-medium">kg</span></div>
                   <div className="flex justify-center gap-3 mt-3 text-xs md:text-sm">
                     <div className="bg-rose-100 dark:bg-rose-900/40 py-1 px-3 rounded-full text-rose-700 dark:text-rose-200 border border-rose-300 dark:border-rose-800/50">
-                      肉のみ用: <span className="font-bold">{(data.val * 1.5).toFixed(1)}</span>kg
+                      肉のみ用: <span className="font-bold">{data.actualMeatOnlyKg.toFixed(1)}</span>kg
                     </div>
                     <div className="bg-sky-100 dark:bg-sky-900/40 py-1 px-3 rounded-full text-sky-700 dark:text-sky-200 border border-sky-300 dark:border-sky-800/50">
-                      トマト氷用: <span className="font-bold">{(data.val * 1.8).toFixed(1)}</span>kg
+                      トマト氷用: <span className="font-bold">{data.actualTomatoMeatKg.toFixed(1)}</span>kg
                     </div>
                   </div>
                 </div>
