@@ -66,10 +66,10 @@ export default function MeatCalculator() {
       const standardBarrels = Math.max(0, totalBarrels - bistroBarrels - salamiBarrels - parisawBarrels);
       
       const totalMeatKg = (standardBarrels * 1.5) + (bistroBarrels * 2.0) + (salamiBarrels * 1.5) + (parisawBarrels * 3.0);
-      const totalTomatoBarrels = (standardBarrels * 1.0) + (bistroBarrels * 1.0) + (salamiBarrels * 0.5) + (parisawBarrels * (4/3));
+      actualTomatoMeatKg = (standardBarrels * 1.8) + (bistroBarrels * 3.0) + (salamiBarrels * 1.5) + (parisawBarrels * 4.0);
+      const totalTomatoBarrels = actualTomatoMeatKg / 1.8;
 
       actualMeatOnlyKg = totalMeatKg;
-      actualTomatoMeatKg = totalTomatoBarrels * 1.8;
 
       combinedBarrels = totalBarrels;
       combinedMeat = calculateMeatOnly(totalMeatKg);
@@ -394,7 +394,7 @@ function TomatoIceCard({ tomatoIce }: { tomatoIce: ReturnType<typeof calculateTo
         {tomatoIce.remBarrels > 0 && (
           <div className="space-y-2 bg-white dark:bg-black/20 p-4 rounded-xl border border-slate-300 dark:border-slate-700/50 shadow-sm">
             <div className="flex justify-between items-center pb-2 border-b border-slate-200 dark:border-white/5">
-              <div className="font-bold text-slate-700 dark:text-slate-300 text-lg">端数 ({tomatoIce.remBarrels}タル分)</div>
+              <div className="font-bold text-slate-700 dark:text-slate-300 text-lg">端数 ({Number(tomatoIce.remBarrels.toFixed(2))}タル分)</div>
               <div className="text-xl font-bold text-slate-800 dark:text-slate-200 bg-slate-100 dark:bg-slate-800 px-3 py-0.5 rounded-lg border border-slate-300 dark:border-slate-600">
                 1<span className="text-sm text-slate-500 dark:text-slate-400 ml-1">個</span>
               </div>
