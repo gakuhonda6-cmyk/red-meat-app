@@ -26,9 +26,14 @@ function calculateTomatoIce(totalBarrels: number) {
 }
 
 export default function MeatCalculator() {
-  const [mode, setMode] = useState<'salt' | 'weight' | 'barrels'>('weight');
+  const [mode, setMode] = useState<'salt' | 'weight' | 'barrels' | 'inventory'>('weight');
   const [subMode, setSubMode] = useState<'combined' | 'meat' | 'tomato'>('combined');
   const [inputValue, setInputValue] = useState<string>('');
+
+  const [stockTomatoIce, setStockTomatoIce] = useState<number>(0);
+  const [stockMeatOnly, setStockMeatOnly] = useState<number>(0);
+  const [todayScrapMeat, setTodayScrapMeat] = useState<number>(0);
+  const [keepExtraStock, setKeepExtraStock] = useState<boolean>(true);
 
   const [parisawBarrels, setParisawBarrels] = useState<number>(0);
   const [bistroBarrels, setBistroBarrels] = useState<number>(0);
@@ -40,6 +45,49 @@ export default function MeatCalculator() {
 
     if (mode === 'salt') {
       return { isSalt: true, saltAmount: val * 0.03 };
+    }
+
+    if (mode === 'inventory') {
+      const totalBarrels = val;
+      const standardBarrels = Math.max(0, totalBarrels - bistroBarrels - salamiBarrels - parisawBarrels);
+      
+      const totalMeatKg = (standardBarrels * 1.5) + (bistroBarrels * 2.0) + (salamiBarrels * 1.5) + (parisawBarrels * 3.0);
+      const totalTomatoBarrels = (standardBarrels * 1.0) + (bistroBarrels * 1.0) + (salamiBarrels * 0.5) + (parisawBarrels * (4/3));
+
+      const requiredMeatOnlyBarrels = totalMeatKg / 1.5;
+      
+      const targetTomatoBarrels = totalTomatoBarrels + (keepExtraStock ? 5 : 0);
+      const targetMeatOnlyBarrels = requiredMeatOnlyBarrels + (keepExtraStock ? 5 : 0);
+      
+      const newTomatoBarrelsNeeded = Math.max(0, targetTomatoBarrels - stockTomatoIce);
+      const newMeatOnlyBarrelsNeeded = Math.max(0, targetMeatOnlyBarrels - stockMeatOnly);
+
+      const kgNeededForTomato = newTomatoBarrelsNeeded * 1.8;
+      const kgNeededForMeatOnly = newMeatOnlyBarrelsNeeded * 1.5;
+      const totalKgNeeded = kgNeededForTomato + kgNeededForMeatOnly;
+
+      const shortageKg = totalKgNeeded - todayScrapMeat;
+
+      const newMeatOnlyPacks = calculateMeatOnly(kgNeededForMeatOnly);
+      const newTomatoIcePacks = calculateTomatoIce(newTomatoBarrelsNeeded);
+
+      return {
+        isSalt: false,
+        isInventory: true,
+        val,
+        requiredTomatoBarrels: totalTomatoBarrels,
+        requiredMeatOnlyBarrels,
+        newTomatoBarrelsNeeded,
+        newMeatOnlyBarrelsNeeded,
+        kgNeededForTomato,
+        kgNeededForMeatOnly,
+        totalKgNeeded,
+        shortageKg,
+        todayScrapMeat,
+        keepExtraStock,
+        newMeatOnlyPacks,
+        newTomatoIcePacks
+      };
     }
 
     const isWeight = mode === 'weight';
@@ -103,13 +151,13 @@ export default function MeatCalculator() {
       exclusiveMeat,
       exclusiveTomato: exclusiveTomato ? { barrels: exclusiveTomatoBarrels, tomato: exclusiveTomato, leftover: exclusiveTomatoLeftover } : null,
     };
-  }, [inputValue, mode, bistroBarrels, salamiBarrels, parisawBarrels]);
+  }, [inputValue, mode, bistroBarrels, salamiBarrels, parisawBarrels, stockTomatoIce, stockMeatOnly, todayScrapMeat, keepExtraStock]);
 
-  const handleModeSwitch = (newMode: 'salt' | 'weight' | 'barrels') => {
+  const handleModeSwitch = (newMode: 'salt' | 'weight' | 'barrels' | 'inventory') => {
     setMode(newMode);
     setInputValue('');
     if (newMode !== 'weight') setSubMode('combined');
-    if (newMode !== 'barrels') {
+    if (newMode !== 'barrels' && newMode !== 'inventory') {
       setParisawBarrels(0);
       setBistroBarrels(0);
       setSalamiBarrels(0);
@@ -119,10 +167,10 @@ export default function MeatCalculator() {
   return (
     <div className="space-y-6 pb-20">
       <div className="glass-panel p-6 space-y-6">
-        <div className="flex bg-slate-200/50 dark:bg-black/40 rounded-lg p-1 backdrop-blur-sm border border-slate-300 dark:border-white/5">
+        <div className="flex bg-slate-200/50 dark:bg-black/40 rounded-lg p-1 backdrop-blur-sm border border-slate-300 dark:border-white/5 overflow-x-auto whitespace-nowrap hide-scrollbar">
           <button
             onClick={() => handleModeSwitch('weight')}
-            className={`flex-1 flex items-center justify-center gap-1 py-2.5 rounded-md text-[13px] font-medium transition-all duration-300 ${
+            className={`flex-1 flex items-center justify-center gap-1 py-2.5 px-2 rounded-md text-[13px] font-medium transition-all duration-300 ${
               mode === 'weight' ? 'bg-rose-600 text-white shadow-lg shadow-rose-900/50' : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'
             }`}
           >
@@ -131,7 +179,7 @@ export default function MeatCalculator() {
           </button>
           <button
             onClick={() => handleModeSwitch('barrels')}
-            className={`flex-1 flex items-center justify-center gap-1 py-2.5 rounded-md text-[13px] font-medium transition-all duration-300 ${
+            className={`flex-1 flex items-center justify-center gap-1 py-2.5 px-2 rounded-md text-[13px] font-medium transition-all duration-300 ${
               mode === 'barrels' ? 'bg-rose-600 text-white shadow-lg shadow-rose-900/50' : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'
             }`}
           >
@@ -140,21 +188,55 @@ export default function MeatCalculator() {
           </button>
           <button
             onClick={() => handleModeSwitch('salt')}
-            className={`flex-1 flex items-center justify-center gap-1 py-2.5 rounded-md text-[13px] font-medium transition-all duration-300 ${
+            className={`flex-1 flex items-center justify-center gap-1 py-2.5 px-2 rounded-md text-[13px] font-medium transition-all duration-300 ${
               mode === 'salt' ? 'bg-rose-600 text-white shadow-lg shadow-rose-900/50' : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'
             }`}
           >
             <Beaker size={14} />
             塩の量(g)
           </button>
+          <button
+            onClick={() => handleModeSwitch('inventory')}
+            className={`flex-1 flex items-center justify-center gap-1 py-2.5 px-2 rounded-md text-[13px] font-medium transition-all duration-300 ${
+              mode === 'inventory' ? 'bg-blue-600 text-white shadow-lg shadow-blue-900/50' : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'
+            }`}
+          >
+            <Package size={14} />
+            在庫・仕分け
+          </button>
         </div>
+
+        {mode === 'inventory' && (
+          <div className="grid grid-cols-2 gap-4">
+            <div className="bg-slate-50 dark:bg-black/30 p-4 rounded-xl border border-slate-200 dark:border-white/5 shadow-inner">
+              <h3 className="text-sm font-bold text-slate-700 dark:text-slate-300 mb-3 flex items-center gap-2">📦 現在の在庫</h3>
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <label className="text-xs font-semibold text-slate-500 dark:text-slate-400">トマト氷 (タル分)</label>
+                  <input type="number" min="0" value={stockTomatoIce || ''} onChange={e => setStockTomatoIce(parseFloat(e.target.value) || 0)} className="w-20 bg-white dark:bg-white/5 border border-slate-300 dark:border-white/10 rounded-lg px-2 py-1.5 text-center text-sm font-bold text-slate-900 dark:text-white" placeholder="0" />
+                </div>
+                <div className="flex items-center justify-between">
+                  <label className="text-xs font-semibold text-slate-500 dark:text-slate-400">肉のみ (タル分)</label>
+                  <input type="number" min="0" value={stockMeatOnly || ''} onChange={e => setStockMeatOnly(parseFloat(e.target.value) || 0)} className="w-20 bg-white dark:bg-white/5 border border-slate-300 dark:border-white/10 rounded-lg px-2 py-1.5 text-center text-sm font-bold text-slate-900 dark:text-white" placeholder="0" />
+                </div>
+              </div>
+            </div>
+            <div className="bg-slate-50 dark:bg-black/30 p-4 rounded-xl border border-slate-200 dark:border-white/5 flex flex-col justify-center shadow-inner">
+              <h3 className="text-sm font-bold text-slate-700 dark:text-slate-300 mb-2 flex items-center gap-2">🥩 本日のくず肉</h3>
+              <div className="relative mt-1">
+                <input type="number" min="0" step="0.1" value={todayScrapMeat || ''} onChange={e => setTodayScrapMeat(parseFloat(e.target.value) || 0)} className="w-full bg-white dark:bg-white/5 border border-slate-300 dark:border-white/10 rounded-lg px-3 py-3 text-2xl font-bold text-center text-slate-900 dark:text-white" placeholder="0" />
+                <span className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 font-medium">kg</span>
+              </div>
+            </div>
+          </div>
+        )}
 
         <div className="relative">
           <input
             type="number"
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}
-            placeholder={mode === 'salt' ? "例: 1500" : mode === 'weight' ? "例: 49.5" : "例: 15"}
+            placeholder={mode === 'salt' ? "例: 1500" : mode === 'weight' ? "例: 49.5" : mode === 'inventory' ? "予定の合計タル数" : "例: 15"}
             className="w-full bg-white dark:bg-white/5 border border-slate-300 dark:border-white/10 rounded-xl px-4 py-4 text-3xl font-semibold text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-white/20 focus:outline-none focus:ring-2 focus:ring-rose-500/50 transition-all text-center"
           />
           <div className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 dark:text-slate-400 font-medium">
@@ -162,7 +244,7 @@ export default function MeatCalculator() {
           </div>
         </div>
         
-        {mode === 'barrels' && parseFloat(inputValue) > 0 && (
+        {(mode === 'barrels' || mode === 'inventory') && parseFloat(inputValue) > 0 && (
           <div className="bg-slate-50 dark:bg-black/30 p-4 rounded-xl border border-slate-200 dark:border-white/5 space-y-4 animate-in fade-in slide-in-from-top-2">
             <div className="text-sm font-bold text-slate-700 dark:text-slate-300 flex items-center justify-between">
               <span>イレギュラーなソーセージ</span>
@@ -206,7 +288,7 @@ export default function MeatCalculator() {
             </div>
           )}
 
-          {!data.isSalt && subMode === 'combined' && data.combined && (
+          {!data.isSalt && !data.isInventory && subMode === 'combined' && data.combined && (
             <>
               {mode === 'weight' ? (
                 <div className="glass-panel p-4 text-center border-emerald-300 dark:border-emerald-900/30 bg-emerald-50 dark:bg-emerald-950/20">
@@ -236,7 +318,7 @@ export default function MeatCalculator() {
             </>
           )}
 
-          {!data.isSalt && subMode === 'meat' && data.exclusiveMeat && (
+          {!data.isSalt && !data.isInventory && subMode === 'meat' && data.exclusiveMeat && (
             <>
                <div className="glass-panel p-4 text-center border-rose-300 dark:border-rose-900/30 bg-rose-50 dark:bg-rose-950/20">
                   <div className="text-rose-600 dark:text-rose-400 text-sm font-semibold mb-1 flex items-center justify-center gap-2"><Flame size={16}/>全量を肉のみにする場合</div>
@@ -250,7 +332,7 @@ export default function MeatCalculator() {
             </>
           )}
 
-          {!data.isSalt && subMode === 'tomato' && data.exclusiveTomato && (
+          {!data.isSalt && !data.isInventory && subMode === 'tomato' && data.exclusiveTomato && (
             <>
                <div className="glass-panel p-4 text-center border-sky-300 dark:border-sky-900/30 bg-sky-50 dark:bg-sky-950/20">
                   <div className="text-sky-600 dark:text-sky-400 text-sm font-semibold mb-1 flex items-center justify-center gap-2"><Flame size={16}/>全量をトマト氷にする場合</div>
@@ -261,6 +343,10 @@ export default function MeatCalculator() {
                 </div>
               <TomatoIceCard tomatoIce={data.exclusiveTomato.tomato} />
             </>
+          )}
+          
+          {mode === 'inventory' && data.isInventory && (
+            <InventoryResult data={data} setKeepExtraStock={setKeepExtraStock} />
           )}
         </div>
       )}
@@ -415,6 +501,105 @@ function TomatoIceCard({ tomatoIce }: { tomatoIce: ReturnType<typeof calculateTo
         )}
 
       </div>
+    </div>
+  );
+}
+
+function InventoryResult({ data, setKeepExtraStock }: { data: any, setKeepExtraStock: (v: boolean) => void }) {
+  const surplusKg = data.todayScrapMeat - data.totalKgNeeded;
+  const isShortage = surplusKg < 0;
+
+  return (
+    <div className="space-y-6">
+      <div className="glass-panel overflow-hidden border-blue-200 dark:border-blue-900/30">
+        <div className="bg-blue-100 dark:bg-blue-950/40 p-4 border-b border-blue-200 dark:border-white/5 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="p-2 bg-blue-200 dark:bg-blue-500/20 rounded-lg text-blue-600 dark:text-blue-400">
+              <Package size={20} />
+            </div>
+            <h2 className="text-lg font-bold text-slate-900 dark:text-white tracking-wide">在庫仕分け結果</h2>
+          </div>
+          <button
+            onClick={() => setKeepExtraStock(!data.keepExtraStock)}
+            className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-bold transition-colors ${
+              data.keepExtraStock 
+                ? 'bg-blue-600 text-white shadow-sm' 
+                : 'bg-white dark:bg-white/10 text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-white/10'
+            }`}
+          >
+            <div className={`w-2 h-2 rounded-full ${data.keepExtraStock ? 'bg-white' : 'bg-slate-400'}`} />
+            ＋5タル常備
+          </button>
+        </div>
+        <div className="p-5 space-y-5">
+          <div className="grid grid-cols-2 gap-4">
+            <div className="bg-white dark:bg-white/5 p-4 rounded-xl border border-slate-200 dark:border-white/5 shadow-sm text-center">
+              <div className="text-sm text-slate-500 font-semibold mb-1">必要なトマト氷</div>
+              <div className="text-xl font-bold text-slate-800 dark:text-slate-100">{data.requiredTomatoBarrels.toFixed(1)} <span className="text-sm font-normal text-slate-500">タル分</span></div>
+              <div className="text-xs text-rose-600 dark:text-rose-400 mt-2 bg-rose-50 dark:bg-rose-900/20 py-1 rounded">
+                新しく作る分: <span className="font-bold">{data.newTomatoBarrelsNeeded.toFixed(1)}</span> タル分
+                {data.keepExtraStock && <span className="text-[10px] ml-1">(+5常備)</span>}
+              </div>
+            </div>
+            <div className="bg-white dark:bg-white/5 p-4 rounded-xl border border-slate-200 dark:border-white/5 shadow-sm text-center">
+              <div className="text-sm text-slate-500 font-semibold mb-1">必要な肉のみ</div>
+              <div className="text-xl font-bold text-slate-800 dark:text-slate-100">{data.requiredMeatOnlyBarrels.toFixed(1)} <span className="text-sm font-normal text-slate-500">タル分</span></div>
+              <div className="text-xs text-rose-600 dark:text-rose-400 mt-2 bg-rose-50 dark:bg-rose-900/20 py-1 rounded">
+                新しく作る分: <span className="font-bold">{data.newMeatOnlyBarrelsNeeded.toFixed(1)}</span> タル分
+                {data.keepExtraStock && <span className="text-[10px] ml-1">(+5常備)</span>}
+              </div>
+            </div>
+          </div>
+          
+          <div className={`p-4 rounded-xl border ${isShortage ? 'bg-rose-50 border-rose-300 dark:bg-rose-950/30 dark:border-rose-900/50' : 'bg-emerald-50 border-emerald-300 dark:bg-emerald-950/30 dark:border-emerald-900/50'}`}>
+            <div className="text-center">
+              <div className={`text-sm font-bold mb-1 ${isShortage ? 'text-rose-600 dark:text-rose-400' : 'text-emerald-600 dark:text-emerald-400'}`}>
+                {isShortage ? '⚠️ くず肉が足りません！' : '✅ くず肉は足ります！'}
+              </div>
+              <div className="text-2xl font-black text-slate-800 dark:text-white mt-2">
+                {isShortage ? (
+                  <>不足: <span className="text-rose-600 dark:text-rose-400">{Math.abs(surplusKg).toFixed(1)}</span> kg</>
+                ) : (
+                  <>余り肉: <span className="text-emerald-600 dark:text-emerald-400">{surplusKg.toFixed(1)}</span> kg</>
+                )}
+              </div>
+              <div className="text-xs text-slate-500 mt-2">
+                新しく作るための必要合計: {data.totalKgNeeded.toFixed(1)}kg / 本日のくず肉: {data.todayScrapMeat.toFixed(1)}kg
+              </div>
+            </div>
+
+            {!isShortage && surplusKg > 0 && (
+              <div className="mt-4 pt-4 border-t border-emerald-200 dark:border-emerald-800/30">
+                <div className="text-xs font-bold text-emerald-700 dark:text-emerald-300 mb-2">💡 余り肉 ({surplusKg.toFixed(1)}kg) の活用提案</div>
+                <div className="flex gap-2 text-xs">
+                  <div className="flex-1 bg-white dark:bg-black/20 p-2 rounded border border-emerald-200 dark:border-emerald-800/50 text-center">
+                    在庫用 肉のみ<br/><span className="text-base font-bold text-emerald-600 dark:text-emerald-400">{Math.floor(surplusKg / 1.5)}</span> タル分 作れます
+                  </div>
+                  <div className="flex-1 bg-white dark:bg-black/20 p-2 rounded border border-emerald-200 dark:border-emerald-800/50 text-center">
+                    在庫用 トマト氷<br/><span className="text-base font-bold text-emerald-600 dark:text-emerald-400">{Math.floor(surplusKg / 1.8)}</span> タル分 作れます
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {(data.newTomatoBarrelsNeeded > 0 || data.newMeatOnlyBarrelsNeeded > 0) && (
+        <div className="space-y-4">
+          <div className="text-sm font-bold text-slate-500 text-center flex items-center justify-center gap-2">
+            <span className="w-8 h-px bg-slate-300"></span>
+            新しく作る分の袋分け
+            <span className="w-8 h-px bg-slate-300"></span>
+          </div>
+          {data.newMeatOnlyBarrelsNeeded > 0 && (
+            <MeatOnlyCard meatOnly={data.newMeatOnlyPacks} />
+          )}
+          {data.newTomatoBarrelsNeeded > 0 && (
+            <TomatoIceCard tomatoIce={data.newTomatoIcePacks} />
+          )}
+        </div>
+      )}
     </div>
   );
 }
