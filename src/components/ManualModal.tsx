@@ -35,7 +35,7 @@ export default function ManualModal() {
               <section className="space-y-4">
                 <div className="space-y-1">
                   <h3 className="text-rose-600 dark:text-rose-400 font-bold text-lg">STEP 1: 計算モードを選ぶ</h3>
-                  <p className="text-slate-600 dark:text-slate-300 text-sm leading-relaxed">一番上のタブから「総重量」「タル数」「塩の量」の基準となるモードを選択します。</p>
+                  <p className="text-slate-600 dark:text-slate-300 text-sm leading-relaxed">一番上のタブから「総重量」「タル数」「塩の量」「在庫・仕分け」の基準となるモードを選択します。</p>
                 </div>
                 <img src="/manual/screenshot1_initial.png" alt="初期画面" className="w-full rounded-xl border border-slate-200 dark:border-white/10 shadow-lg" />
               </section>
@@ -54,8 +54,8 @@ export default function ManualModal() {
 
               <section className="space-y-4">
                 <div className="space-y-1">
-                  <h3 className="text-rose-600 dark:text-rose-400 font-bold text-lg">STEP 3: タル数からの逆算も</h3>
-                  <p className="text-slate-600 dark:text-slate-300 text-sm leading-relaxed">「タル数」モードなら、目標のタル数を入力するだけで『必要な赤肉の総量』や内訳がわかります。</p>
+                  <h3 className="text-rose-600 dark:text-rose-400 font-bold text-lg">STEP 3: タル数からの逆算（イレギュラー対応）</h3>
+                  <p className="text-slate-600 dark:text-slate-300 text-sm leading-relaxed">「タル数」モードなら、目標のタル数を入力するだけで『必要な赤肉の総量』や内訳がわかります。<br/>パリソーやビストロなど、分量の違うイレギュラーなソーセージを練る場合も、そのタル数を入力するだけで自動調整されます！</p>
                 </div>
                 <img src="/manual/screenshot3_barrels.png" alt="タル数の計算" className="w-full rounded-xl border border-slate-200 dark:border-white/10 shadow-lg" />
               </section>
@@ -64,7 +64,23 @@ export default function ManualModal() {
 
               <section className="space-y-4">
                 <div className="space-y-1">
-                  <h3 className="text-rose-600 dark:text-rose-400 font-bold text-lg">STEP 4: 複数タブで並行作業</h3>
+                  <h3 className="text-rose-600 dark:text-rose-400 font-bold text-lg">STEP 4: 在庫・仕分けツールで過不足を一発計算</h3>
+                  <p className="text-slate-600 dark:text-slate-300 text-sm leading-relaxed">
+                    「在庫・仕分け」モードでは、現在の在庫（トマト氷・肉のみのタル数）と、本日とれたくず肉の量（kg）を入力することで、今日足りないお肉の量を自動計算します。<br/>
+                    お肉が余る場合は、それをどう袋詰めして在庫に回せば良いかの提案も行います。（＋5タル常備スイッチも搭載！）
+                  </p>
+                </div>
+                <div className="w-full bg-blue-50 dark:bg-blue-900/20 p-6 rounded-xl border border-blue-200 dark:border-blue-800/30 text-center flex flex-col items-center justify-center gap-3">
+                   <div className="text-4xl">📦✨</div>
+                   <div className="text-sm font-bold text-blue-700 dark:text-blue-300">くず肉のやりくりを自動でサポートします</div>
+                </div>
+              </section>
+
+              <div className="h-px w-full bg-slate-200 dark:bg-white/10"></div>
+
+              <section className="space-y-4">
+                <div className="space-y-1">
+                  <h3 className="text-rose-600 dark:text-rose-400 font-bold text-lg">STEP 5: 複数タブで並行作業</h3>
                   <p className="text-slate-600 dark:text-slate-300 text-sm leading-relaxed">「＋」ボタンで計算タブを増やせます。午前の仕込みと午後の仕込みなど、複数の計算結果を消さずに保存しながら見比べることができます。</p>
                 </div>
                 <img src="/manual/screenshot4_tabs.png" alt="複数タブ" className="w-full rounded-xl border border-slate-200 dark:border-white/10 shadow-lg" />
@@ -74,7 +90,7 @@ export default function ManualModal() {
 
               <section className="space-y-4">
                 <div className="space-y-1">
-                  <h3 className="text-rose-600 dark:text-rose-400 font-bold text-lg">STEP 5: 困ったらAIに相談！</h3>
+                  <h3 className="text-rose-600 dark:text-rose-400 font-bold text-lg">STEP 6: 困ったらAIに相談！</h3>
                   <p className="text-slate-600 dark:text-slate-300 text-sm leading-relaxed">右下のチャットボタン（💬）を押すと、計算ルールを全て暗記しているAIが登場します。「5タルだと塩は何グラム？」など何でも聞いてください。</p>
                 </div>
                 <img src="/manual/screenshot5_chat.png" alt="AIチャット" className="w-full rounded-xl border border-slate-200 dark:border-white/10 shadow-lg" />
