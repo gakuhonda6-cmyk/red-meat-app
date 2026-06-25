@@ -70,10 +70,7 @@ export default function ManualModal() {
                     お肉が余る場合は、それをどう袋詰めして在庫に回せば良いかの提案も行います。（＋5タル常備スイッチも搭載！）
                   </p>
                 </div>
-                <div className="w-full bg-blue-50 dark:bg-blue-900/20 p-6 rounded-xl border border-blue-200 dark:border-blue-800/30 text-center flex flex-col items-center justify-center gap-3">
-                   <div className="text-4xl">📦✨</div>
-                   <div className="text-sm font-bold text-blue-700 dark:text-blue-300">くず肉のやりくりを自動でサポートします</div>
-                </div>
+                <img src="/manual/screenshot6_inventory.png" alt="在庫・仕分けツール" className="w-full rounded-xl border border-slate-200 dark:border-white/10 shadow-lg" />
               </section>
 
               <div className="h-px w-full bg-slate-200 dark:bg-white/10"></div>
